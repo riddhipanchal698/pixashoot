@@ -13,4 +13,5 @@ validators
 pytest-asyncio
 pytest-cov
 structlog
-ua-generatorcolorthief
+ua-generator
+colorthief

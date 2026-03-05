@@ -1,4 +1,5 @@
 import logging
+from colorthief import ColorThief
 from playwright.async_api import Page
 from exceptions import ScreenshotServiceException
 from controllers.main_controller import MainBrowserController
@@ -6,6 +7,17 @@ from controllers.screenshot_controller import ScreenshotController
 from context_manager import ContextManager
 
 logger = logging.getLogger(__name__)
+
+
+def extract_colors(image_path, color_count=5):
+    try:
+        ct = ColorThief(image_path)
+        palette = ct.get_palette(color_count=color_count, quality=1)
+        return ['#{:02x}{:02x}{:02x}'.format(r, g, b) for r, g, b in palette]
+    except Exception as e:
+        logger.warning(f"Color extraction failed: {e}")
+        return []
+
 
 class CaptureService:
     def __init__(self):
@@ -94,8 +106,11 @@ class CaptureService:
                     'omit_background': options.omit_background
                 })
 
-                # Return the format that was actually saved by Playwright
-                return intermediate_format
+                # Extract dominant colors from the saved screenshot
+                colors = extract_colors(output_path)
+
+                # Return the format that was actually saved by Playwright, plus colors
+                return intermediate_format, colors
 
             finally:
                 await page.close()

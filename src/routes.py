@@ -84,7 +84,7 @@ def register_routes(app):
             
             # Capture the screenshot
             try:
-                saved_format = await capture_service.capture_screenshot(intermediate_output_path, options)
+                saved_format, colors = await capture_service.capture_screenshot(intermediate_output_path, options)
                 logger.info(f"Intermediate screenshot saved as {intermediate_output_path} (format: {saved_format})")
             except Exception as capture_error:
                 if os.path.exists(intermediate_output_path):
@@ -143,7 +143,8 @@ def register_routes(app):
                         os.remove(intermediate_output_path)
                     return jsonify({
                         'file': base64.b64encode(file_data).decode('utf-8'),
-                        'format': options.format
+                        'format': options.format,
+                        'colors': colors
                     }), 200
 
                 else:  # by_format
